@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>three.js Cornell Box with Objects</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        body {
+            background-color: #ccc;
+            color: #000;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+        }
+        #canvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            
+        }
+    }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GUI } from 'https://cdn.skypack.dev/lil-gui';
+import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.getElementById('canvas').appendChild(renderer.domElement);
+    
+
+    // Cornell Box setup
+const size = 10;
+const lightIntensity = 1;
+camera.position.z = 20;
+camera.position.y = size / 2;
+
+
+
+const orbitControls = new OrbitControls(camera, renderer.domElement);
+orbitControls.enableDamping = true;
+orbitControls.dampingFactor = 0.05;
+orbitControls.screenSpacePanning = false;
+orbitControls.minDistance = 1;
+orbitControls.maxDistance = 500;
+orbitControls.maxPolarAngle = Math.PI;
+
+
+    // Materials
+const lambertWhite = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
+const lambertGreen = new THREE.MeshLambertMaterial({ color: 0x00FF00 });
+const lambertRed = new THREE.MeshLambertMaterial({ color: 0xFF0000 });
+
+    // Walls+reflectives
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(size, size), lambertWhite);
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+
+
+const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(size, size), lambertWhite);
+ceiling.position.y = size;
+ceiling.rotation.x = Math.PI / 2;
+ceiling.receiveShadow = true;
+scene.add(ceiling);
+
+const backWall = new THREE.Mesh(new THREE.PlaneGeometry(size, size), lambertWhite);
+backWall.position.z = -size / 2;
+backWall.position.y = size / 2;
+backWall.receiveShadow = true;
+scene.add(backWall);
+const lightbw = new THREE.RectAreaLight(0xFFFFFF, lightIntensity, size, size);
+    lightbw.position.set(0,size/2,-size/2);
+
+    scene.add(lightbw);
+
+
+const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(size, size), lambertGreen);
+rightWall.position.x = size / 2;
+rightWall.rotation.y = -Math.PI / 2;
+rightWall.position.y = size / 2;
+rightWall.receiveShadow = true;
+scene.add(rightWall);
+
+const lightrw = new THREE.RectAreaLight(0x00FF00, lightIntensity, size, size);
+    lightrw.position.set(size/2,size/2,0);
+    lightrw.rotation.y = -Math.PI / 2;
+    scene.add(lightrw);
+
+
+const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(size, size), lambertRed);
+leftWall.position.x = -size / 2;
+leftWall.rotation.y = Math.PI / 2;
+leftWall.position.y = size / 2;
+leftWall.receiveShadow = true;
+scene.add(leftWall);
+
+const lightlw = new THREE.RectAreaLight(0xFF0000, lightIntensity, size, size);
+    lightlw.position.set(-size/2,size/2,0);
+    lightlw.rotation.y = Math.PI / 2;
+    scene.add(lightlw);
+
+
+
+
+
+
+
+
+
+
+// Telelumen Light
+const light = new THREE.PointLight(0xFFFFFF, lightIntensity);
+light.position.set(0, size - 0.1, 0);
+scene.add(light);
+
+
+
+
+const materialParams = {
+    color: 0xFFFFFF,
+    emissive: 0x000000,
+    reflectivity: 1,
+    wireframe: false
+};
+
+
+
+
+
+function coneupdateMaterials() {
+    coneMaterial.color.set(materialParams.color);
+    coneMaterial.emissive.set(materialParams.emissive);
+    coneMaterial.reflectivity = materialParams.reflectivity;
+    coneMaterial.wireframe = materialParams.wireframe;
+}
+function sphereupdateMaterials() {
+    sphereMaterial.color.set(materialParams.color);
+    sphereMaterial.emissive.set(materialParams.emissive);
+    sphereMaterial.reflectivity = materialParams.reflectivity;
+    sphereMaterial.wireframe = materialParams.wireframe;
+}
+function cylinderupdateMaterials() {
+    cylinderMaterial.color.set(materialParams.color);
+    cylinderMaterial.emissive.set(materialParams.emissive);
+    cylinderMaterial.reflectivity = materialParams.reflectivity;
+    cylinderMaterial.wireframe = materialParams.wireframe;
+}
+
+
+
+// Cone
+const coneGeometry = new THREE.ConeGeometry(0.5, 1, 32);
+const coneMaterial = new THREE.MeshLambertMaterial({...materialParams,  color: 0xff0000 });
+const cone = new THREE.Mesh(coneGeometry, coneMaterial);
+//const cone = new THREE.Mesh(coneGeometry, materials[0]);
+cone.position.x = -3;
+cone.position.y = 3;
+cone.castShadow = true;
+cone.receiveShadow = true;
+scene.add(cone);
+
+  
+	  // Cylinder
+const cylinderGeometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 32);
+const cylinderMaterial = new THREE.MeshPhongMaterial({...materialParams, color: 0x0000ff });
+const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
+//const cylinder = new THREE.Mesh(cylinderGeometry, materials[1]);
+cylinder.position.x = 3;
+cylinder.position.y = 3;
+cylinder.castShadow = true;
+cylinder.receiveShadow = true;
+scene.add(cylinder);
+
+  
+	  // Sphere
+const sphereGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+const sphereMaterial = new THREE.MeshPhysicalMaterial({...materialParams,  color: 0x00ff00 });
+const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+//const sphere = new THREE.Mesh(sphereGeometry, materials[2]);
+sphere.position.x = 0;
+sphere.position.y = size/2;
+sphere.position.z = 3;
+sphere.castShadow = true;
+sphere.receiveShadow = true;
+scene.add(sphere);
+
+   
+const gui = new GUI();
+
+
+
+
+
+
+
+
+
+const folder = gui.addFolder('coneMaterials');
+folder.addColor(materialParams, 'color').onChange(() => coneupdateMaterials());
+folder.addColor(materialParams, 'emissive').onChange(() => coneupdateMaterials());
+folder.add(materialParams, 'reflectivity', 0, 1, 0.01).onChange(() => coneupdateMaterials());
+folder.add(materialParams, 'wireframe').onChange(() => coneupdateMaterials());
+folder.open();
+
+const foldersphere = gui.addFolder('sphereMaterials');
+foldersphere.addColor(materialParams, 'color').onChange(() => sphereupdateMaterials());
+foldersphere.addColor(materialParams, 'emissive').onChange(() => sphereupdateMaterials());
+foldersphere.add(materialParams, 'reflectivity', 0, 1, 0.01).onChange(() => sphereupdateMaterials());
+foldersphere.add(materialParams, 'wireframe').onChange(() => sphereupdateMaterials());
+foldersphere.open();
+
+const foldercylinder = gui.addFolder('cylinderMaterials');
+foldercylinder.addColor(materialParams, 'color').onChange(() => cylinderupdateMaterials());
+foldercylinder.addColor(materialParams, 'emissive').onChange(() => cylinderupdateMaterials());
+foldercylinder.add(materialParams, 'reflectivity', 0, 1, 0.01).onChange(() => cylinderupdateMaterials());
+foldercylinder.add(materialParams, 'wireframe').onChange(() => cylinderupdateMaterials());
+foldercylinder.open();
+
+
+
+
+const shadowFolder = gui.addFolder('Shadow Properties');
+const shadowParams = {
+    shadowMapWidth: light.shadow.mapSize.width,
+    shadowMapHeight: light.shadow.mapSize.height
+};
+
+shadowFolder.add(shadowParams, 'shadowMapWidth', [256, 512, 1024, 2048, 4096]).onChange(value => {
+    light.shadow.mapSize.width = value;
+});
+shadowFolder.add(shadowParams, 'shadowMapHeight', [256, 512, 1024, 2048, 4096]).onChange(value => {
+    light.shadow.mapSize.height = value;
+});
+
+shadowFolder.open();
+
+
+
+
+
+
+
+
+
+ const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 10, 5);    
+const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+pointLight.position.set(0, 10, 0);
+const spotLight = new THREE.SpotLight(0xffffff, 1);
+spotLight.position.set(0, 10, 0);
+const hemisphereLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
+hemisphereLight.position.set(0, 10, 0);
+
+
+let activeLight = directionalLight;
+scene.add(activeLight);
+
+const params = {
+        'Light Type': 'Directional',
+        'Color': activeLight.color.getHex(),
+        'Intensity': activeLight.intensity,
+};
+
+const lightTypes = {
+        'Directional': directionalLight,
+        'Point': pointLight,
+        'Spot': spotLight,
+        'Hemisphere': hemisphereLight
+};
+
+function updateLightParams() {
+        params.Color = activeLight.color.getHex();
+        params.Intensity = activeLight.intensity;
+}
+
+
+
+
+
+gui.add(params, 'Light Type', Object.keys(lightTypes)).onChange(value => {
+        scene.remove(activeLight);
+        activeLight = lightTypes[value];
+        scene.add(activeLight);
+        updateLightParams();
+       
+});
+
+gui.addColor(params, 'Color').onChange(value => {
+        activeLight.color.set(value);
+});
+
+gui.add(params, 'Intensity', 0, 2).onChange(value => {
+        activeLight.intensity = value;
+});
+
+let activeLightFolder;
+
+
+
+function addSpecificControls() {
+    if (activeLightFolder) {
+        gui.removeFolder(activeLightFolder);
+    }
+
+    activeLightFolder = gui.addFolder('Active Light');
+
+    if (activeLight === directionalLight ) {
+        activeLightFolder.add(activeLight.position, 'x', -50, 50).name('Position X');
+        activeLightFolder.add(activeLight.position, 'y', 0, 50).name('Position Y');
+        activeLightFolder.add(activeLight.position, 'z', -50, 50).name('Position Z');
+    } else if (activeLight === hemisphereLight) {
+        activeLightFolder.addColor({ skyColor: hemisphereLight.color.getHex() }, 'skyColor').onChange(color => {
+            hemisphereLight.color.set(color);
+        });
+        activeLightFolder.addColor({ groundColor: hemisphereLight.groundColor.getHex() }, 'groundColor').onChange(color => {
+            hemisphereLight.groundColor.set(color);
+        });
+    } else if (activeLight === spotLight) {
+        activeLightFolder.add(activeLight, 'distance', 0, 200).name('Distance');
+        activeLightFolder.add(activeLight, 'angle', 0, Math.PI / 2).name('Angle');
+        activeLightFolder.add(activeLight, 'penumbra', 0, 1).name('Penumbra');
+    } else if (activeLight === pointLight) {
+        activeLightFolder.add(activeLight, 'distance', 0, 200).name('Distance');
+    }
+    
+    activeLightFolder.open();
+   
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+function animate() {
+    requestAnimationFrame(animate);
+    orbitControls.update();
+    renderer.render(scene, camera);
+}
+
+animate();
+</script>
+</body>
+</html>
